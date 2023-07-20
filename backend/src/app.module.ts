@@ -8,9 +8,12 @@ import { TaskController } from './controller/task/task.controller';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost:27017', {
-      dbName: 'time-tracker',
-    }),
+    MongooseModule.forRoot(
+      'mongodb+srv://varungm:Tlq5XS4IxMT9Oxxg@cluster0.u7xo6uh.mongodb.net/',
+      {
+        dbName: 'time-tracker',
+      },
+    ),
     MongooseModule.forFeature([{ name: 'Task', schema: TaskSchema }]),
   ],
 
