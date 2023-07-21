@@ -45,9 +45,6 @@ const DropDown = ({
           className="relative w-full rounded py-1.5 text-left sm:text-sm sm:leading-6 flex items-center justify-between px-3.5 cursor-pointer"
           onClick={handleOpen}
           style={{
-            color: value
-              ? "rgba(255, 255, 255, 1)"
-              : "rgba(255, 255, 255, 0.5)",
             marginBottom: 0,
             backgroundColor: "#ffff",
             height: 40,
@@ -59,7 +56,12 @@ const DropDown = ({
           disabled={disabled}
         >
           <span className="flex items-center">
-            <span className="block truncate text-[#9EA0A5]">
+            <span
+              className="block truncate"
+              style={{
+                color: value ? "#3a3b3f" : "#9EA0A5",
+              }}
+            >
               {value || placeholder}
             </span>
           </span>
@@ -77,10 +79,12 @@ const DropDown = ({
         {open && (
           <>
             <div
-              className={`overflow-auto max-h-56 ${position ||
-                "absolute"} z-50 mt-1 w-full rounded-md bg-[#9EA0A5] text-base shadow-lg sm:text-sm origin-top-right`}
+              className={`overflow-auto max-h-56 ${
+                position || "absolute"
+              } z-50 mt-1 w-full rounded-md bg-[#9EA0A5] text-base shadow-lg sm:text-sm origin-top-right`}
               role="menu"
               aria-labelledby="menu-button"
+              style={{ borderWidth: 1, borderColor: "#9EA0A5" }}
             >
               <button
                 className="relative w-full cursor-default select-none py-2 pl-3 pr-9"
@@ -91,7 +95,7 @@ const DropDown = ({
                   ...style,
                 }}
               >
-                <div className="flex items-center text-primary cursor-pointer">
+                <div className="flex items-center text-[#3a3b3f] font-semibold cursor-pointer">
                   <span className="font-regular  ml-3 block truncate">
                     Select
                   </span>
@@ -106,13 +110,11 @@ const DropDown = ({
                     className="relative w-full cursor-default select-none py-2 pl-3 pr-9"
                     onClick={() => handleSelect(item)}
                     style={{
-                      backgroundColor: isSelected
-                        ? "rgba(255, 255, 255, 0.04)"
-                        : "#0F0D24",
+                      backgroundColor: isSelected ? "#F5F6FA" : "#9EA0A5",
                       ...style,
                     }}
                   >
-                    <div className="flex items-center text-onPrimary cursor-pointer">
+                    <div className="flex items-center text-[#3a3b3f] font-semibold cursor-pointer">
                       <span className="font-regular  ml-3 block truncate">
                         {item?.[field]}
                       </span>
