@@ -11,5 +11,7 @@ export class Task {
   start: string;
   @Prop()
   end: string;
+  @Prop()
+  duration: string;
 }
 export const TaskSchema = SchemaFactory.createForClass(Task);

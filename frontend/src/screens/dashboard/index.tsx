@@ -4,8 +4,28 @@ import { Header, Text } from "../../components";
 import LeftSideBar from "../../container/leftSideBar";
 import Icon from "../../icons";
 import DropDown from "../../components/dropDown";
+import { useGetAllLogs } from "../../hooks/useGetAllLogs";
+import { Projects, Tasks } from "../../constants";
+import { useAddEditLog } from "../../hooks/useAddEditLog";
 
 export const Dashboard = () => {
+  const [selectData, setSelectData] = useState({
+    project: "",
+    task: "",
+    description: "",
+    start: "",
+    end: "",
+    duration: "",
+  });
+
+  //functions related to time log entry are below
+  const handleSelect = (data: any, field: string) => {
+    setSelectData({ ...selectData, [field]: data });
+  };
+
+  //get all time logs is called here
+  const { allTimeLogs } = useGetAllLogs();
+
   return (
     <div
       className="bg-[#F5F6FA]"
@@ -16,73 +36,99 @@ export const Dashboard = () => {
     >
       <div className="flex w-full">
         <LeftSideBar />
-        <RightSideBar />
+        <RightSideBar
+          allTimeLogs={allTimeLogs}
+          handleSelect={handleSelect}
+          selectData={selectData}
+          setSelectData={setSelectData}
+        />
       </div>
     </div>
   );
 };
 
-const RightSideBar = () => {
+const RightSideBar = (props: any) => {
+  const {
+    allTimeLogs,
+    handleSelect,
+    selectData,
+    setSelectData,
+    handleAddEdit,
+  } = props;
   return (
     <div
       className="relative overflow-scroll shadow-md w-full h-screen px-6 py-8 flex flex-col"
       style={{ flex: 1 }}
     >
       <Header pageTitle="My Dashboard" />
-      <AddTask />
+      <AddTask
+        handleSelect={handleSelect}
+        selectData={selectData}
+        setSelectData={setSelectData}
+      />
       <ProductivityCards />
-      <TableComponent />
+      <TableComponent allTimeLogs={allTimeLogs} />
     </div>
   );
 };
 
-const AddTask = () => {
+const AddTask = (props: any) => {
+  const { handleSelect, selectData, setSelectData } = props;
   return (
     <div className="flex flex-1 flex-row mb-[20px] bg-white border-1 border-solid border-gray-300 p-[20px] gap-[40px] items-center rounded-[8px]">
       <div>
         <LabelHeading>Project</LabelHeading>
         <DropDown
-          onChange={(value: any) => {}}
+          data={Projects}
+          onChange={(value: any) => handleSelect(value, "project")}
           field="value"
+          value={selectData?.project}
           containerStyle={{ width: 200 }}
         />
       </div>
       <div>
         <LabelHeading>Task</LabelHeading>
         <DropDown
-          onChange={(value: any) => {}}
+          data={Tasks}
+          onChange={(value: any) => handleSelect(value, "task")}
           field="value"
+          value={selectData?.task}
           containerStyle={{ width: 200 }}
         />
       </div>
       <div>
         <LabelHeading>Description</LabelHeading>
         <textarea
-          className="w-full h-[40px] p-2 border rounded resize-none text-[#3A3B3F] placeholder-gray-500"
+          className="w-[400px] h-[40px] p-2 border rounded resize-none text-[#3A3B3F] placeholder-[#9EA0A5]"
           cols={40}
           style={{
             backgroundColor: "#fff",
             marginBottom: 0,
             border: "1px solid  #9EA0A5",
+            outline: "none",
           }}
           placeholder="Enter your description here..."
+          onChange={(event: { target: { value: any } }) => {
+            if (event.target.value.length <= 400)
+              handleSelect(event.target.value, "description");
+          }}
+          value={selectData?.description}
         />
       </div>
       <div>
         <LabelHeading>Start Task</LabelHeading>
-        <Timer />
+        <Timer setSelectData={setSelectData} selectData={selectData} />
       </div>
     </div>
   );
 };
 
-const Timer = () => {
+const Timer = (props: any) => {
+  const { setSelectData, selectData } = props;
   const [active, setActive] = useState(false);
   const [pause, setPause] = useState(true);
   const [duration, setDuration] = useState(0);
-  const [startTime, setStartTime] = useState();
-  const [endTime, setEndTime] = useState();
-
+  const { mutate: handleAddEdit } = useAddEditLog();
   useEffect(() => {
     let timePeriod = null;
     if (active && pause === false) {
@@ -96,26 +142,59 @@ const Timer = () => {
       clearInterval(timePeriod);
     };
   }, [active, pause]);
+
+  // api call to add time log when timer is stopped
+  useEffect(() => {
+    if (selectData?.end !== "") {
+      const start: any = new Date(selectData.start);
+      const end: any = new Date(selectData.end);
+      const timeDifference = end - start;
+
+      // Convert the duration to hours and minutes
+      const hours = Math.floor(timeDifference / (1000 * 60 * 60));
+      const minutes = Math.floor(
+        (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
+      );
+
+      // Format the duration as hours and minutes
+      const formattedDuration = `${hours}h ${minutes}min`;
+
+      handleAddEdit({ ...selectData, duration: formattedDuration });
+      setDuration(0);
+      setSelectData({
+        project: "",
+        task: "",
+        description: "",
+        start: "",
+        end: "",
+        duration: "",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectData]);
+
   const initWatch = () => {
-    setStartTime(
-      new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      })
-    );
+    const startTime = new Date()
+      .toLocaleString("sv")
+      .replace("Z", "")
+      .replace(" ", "T");
     setActive(true);
     setPause(false);
+    setSelectData((prev: any) => ({
+      ...prev,
+      start: startTime,
+    }));
   };
   const initResume = () => {
-    setEndTime(
-      new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      })
-    );
+    const endTime = new Date()
+      .toLocaleString("sv")
+      .replace("Z", "")
+      .replace(" ", "T");
     setPause(!pause);
+    setSelectData((prev: any) => ({
+      ...prev,
+      end: endTime,
+    }));
   };
   const initReset = () => {
     setActive(false);
@@ -145,7 +224,8 @@ const Watch = (t: any) => {
   );
 };
 
-const Controls = (prop: any) => {
+const Controls = (props: any) => {
+  const { initWatch, initResume, pause, active } = props;
   const invokeTimer = (
     <div
       style={{
@@ -155,7 +235,7 @@ const Controls = (prop: any) => {
         cursor: "pointer",
       }}
       className="bg-[#018273] flex justify-center items-center"
-      onClick={prop?.initWatch}
+      onClick={initWatch}
     >
       <Icon name="rightIcon" height={20} width={20} />
     </div>
@@ -169,18 +249,14 @@ const Controls = (prop: any) => {
         cursor: "pointer",
       }}
       className="bg-[#018273] flex justify-center items-center"
-      onClick={prop?.initResume}
+      onClick={initResume}
     >
-      <Icon
-        name={prop?.pause ? "rightIcon" : "pauseIcon"}
-        height={20}
-        width={20}
-      />
+      <Icon name={pause ? "rightIcon" : "pauseIcon"} height={20} width={20} />
     </div>
   );
   return (
     <div>
-      <div>{prop?.active ? activeTimer : invokeTimer}</div>
+      <div>{active ? activeTimer : invokeTimer}</div>
     </div>
   );
 };
@@ -223,7 +299,8 @@ const LabelHeading = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const TableComponent = () => {
+const TableComponent = (props: any) => {
+  const { allTimeLogs } = props;
   const tableRef = useRef();
 
   const columnDefs = useMemo(
@@ -232,17 +309,31 @@ const TableComponent = () => {
         headerName: "Project",
         field: "project",
         flex: 1,
+        cellStyle: { color: "#3A3B3F" },
       },
-      { headerName: "Task", field: "task", flex: 1, color: "#9EA0A5" },
+      {
+        headerName: "Task",
+        field: "task",
+        flex: 1,
+        cellStyle: { color: "#3A3B3F" },
+      },
       {
         headerName: "Description",
         field: "description",
         flex: 2,
+        cellStyle: { color: "#3A3B3F" },
       },
       {
-        headerName: "Time",
-        field: "time",
-        flex: 1,
+        headerName: "Start Time",
+        field: "start",
+        flex: 1.5,
+        cellStyle: { color: "#3A3B3F" },
+      },
+      {
+        headerName: "End Time",
+        field: "end",
+        flex: 1.5,
+        cellStyle: { color: "#3A3B3F" },
       },
     ],
     []
@@ -260,14 +351,17 @@ const TableComponent = () => {
   return (
     <div className="flex flex-col w-full h-full">
       <TableTopComponent />
-      <div id="myGrid" className="ag-theme-alpine w-full h-full">
+      <div
+        id="myGrid"
+        className="ag-theme-alpine w-full h-full overflow-x-scroll"
+      >
         <AgGridReact
           ref={tableRef}
           className="ag-theme-alpine"
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           suppressRowClickSelection={true}
-          rowData={null}
+          rowData={allTimeLogs}
           // onSelectionChanged={onSelectionChanged}
         />
       </div>

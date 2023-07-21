@@ -5,4 +5,5 @@ export interface ITask extends Document {
   readonly description: string;
   readonly start: string;
   readonly end: string;
+  readonly duration: string;
 }
