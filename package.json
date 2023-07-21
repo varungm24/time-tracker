@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/open-sesame-digital/ai-product-writer.git"
+    "url": "git+https://github.com/varungm24/time-tracker.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/open-sesame-digital/ai-product-writer/issues"
+    "url": "https://github.com/varungm24/time-tracker/issues"
   },
-  "homepage": "https://github.com/open-sesame-digital/ai-product-writer#readme",
+  "homepage": "https://github.com/varungm24/time-tracker#readme",
   "dependencies": {
     "commitizen": "^4.3.0",
     "register-service-worker": "^1.7.2"
