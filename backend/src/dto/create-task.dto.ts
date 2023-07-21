@@ -20,4 +20,8 @@ export class CreateTaskDto {
   @MaxLength(60)
   @IsNotEmpty()
   readonly end: string;
+  @IsString()
+  @MaxLength(60)
+  @IsNotEmpty()
+  readonly duration: string;
 }
