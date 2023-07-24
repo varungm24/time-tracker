@@ -46,8 +46,8 @@ export const updateTask = async (payload: any, taskId: any) => {
   return apiCall(`task/${taskId}`, { method: "PUT", payload });
 };
 
-export const deleteTask = async (payload: any) => {
-  return apiCall("task", { method: "DELETE", payload });
+export const deleteTask = async (taskId: any) => {
+  return apiCall(`task/${taskId}`, { method: "DELETE" });
 };
 
 export const getTaskById = async (taskId: any) => {

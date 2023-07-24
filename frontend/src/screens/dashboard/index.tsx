@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { Header, Text } from "../../components";
 import LeftSideBar from "../../container/leftSideBar";
@@ -6,7 +6,12 @@ import Icon from "../../icons";
 import DropDown from "../../components/dropDown";
 import { useGetAllLogs } from "../../hooks/useGetAllLogs";
 import { Projects, Tasks } from "../../constants";
-import { useAddEditLog } from "../../hooks/useAddEditLog";
+import { useAddEditLog } from "../../hooks/mutation/useAddEditLog";
+import createCustomCellRender from "../../components/table/customCellComponent";
+import DeleteModalComponent from "../../patterns/popup/deleteModalComponent";
+import { useNavigate } from "react-router-dom";
+import { useDeleteLog } from "../../hooks/mutation/useDeleteLog";
+import EditModalComponent from "../../patterns/popup/editModalComponent";
 
 export const Dashboard = () => {
   const [selectData, setSelectData] = useState({
@@ -48,13 +53,12 @@ export const Dashboard = () => {
 };
 
 const RightSideBar = (props: any) => {
-  const {
-    allTimeLogs,
-    handleSelect,
-    selectData,
-    setSelectData,
-    handleAddEdit,
-  } = props;
+  const { allTimeLogs, handleSelect, selectData, setSelectData } = props;
+  const navigate = useNavigate();
+  const url = window.location;
+  const taskId = url?.search?.split("=")[1];
+
+  const { mutate: handleDeleteTask } = useDeleteLog();
   return (
     <div
       className="relative overflow-scroll shadow-md w-full h-screen px-6 py-8 flex flex-col"
@@ -68,6 +72,26 @@ const RightSideBar = (props: any) => {
       />
       <ProductivityCards />
       <TableComponent allTimeLogs={allTimeLogs} />
+
+      <DeleteModalComponent
+        promptText="Delete the log"
+        subPromptText="Are you sure you want to delete this time log?"
+        primaryCtaText="Confirm"
+        secondaryCtaText="Cancel"
+        handlePrimaryCta={() => {
+          handleDeleteTask(taskId);
+          navigate("#");
+        }}
+        handleSecondaryCta={() => navigate("#")}
+      />
+
+      <EditModalComponent
+        title="Edit Time Log"
+        subTitle="You can edit the below fields"
+        primaryCtaText="Save"
+        secondaryCtaText="Cancel"
+        handleSecondaryCta={() => navigate("#")}
+      />
     </div>
   );
 };
@@ -75,49 +99,51 @@ const RightSideBar = (props: any) => {
 const AddTask = (props: any) => {
   const { handleSelect, selectData, setSelectData } = props;
   return (
-    <div className="flex flex-1 flex-row mb-[20px] bg-white border-1 border-solid border-gray-300 p-[20px] gap-[40px] items-center rounded-[8px]">
-      <div>
-        <LabelHeading>Project</LabelHeading>
-        <DropDown
-          data={Projects}
-          onChange={(value: any) => handleSelect(value, "project")}
-          field="value"
-          value={selectData?.project}
-          containerStyle={{ width: 200 }}
-        />
-      </div>
-      <div>
-        <LabelHeading>Task</LabelHeading>
-        <DropDown
-          data={Tasks}
-          onChange={(value: any) => handleSelect(value, "task")}
-          field="value"
-          value={selectData?.task}
-          containerStyle={{ width: 200 }}
-        />
-      </div>
-      <div>
-        <LabelHeading>Description</LabelHeading>
-        <textarea
-          className="w-[400px] h-[40px] p-2 border rounded resize-none text-[#3A3B3F] placeholder-[#9EA0A5]"
-          cols={40}
-          style={{
-            backgroundColor: "#fff",
-            marginBottom: 0,
-            border: "1px solid  #9EA0A5",
-            outline: "none",
-          }}
-          placeholder="Enter your description here..."
-          onChange={(event: { target: { value: any } }) => {
-            if (event.target.value.length <= 400)
-              handleSelect(event.target.value, "description");
-          }}
-          value={selectData?.description}
-        />
-      </div>
-      <div>
-        <LabelHeading>Start Task</LabelHeading>
-        <Timer setSelectData={setSelectData} selectData={selectData} />
+    <div className="flex flex-1 flex-row mb-[20px] bg-white border-1 border-solid border-gray-300 rounded-[8px]">
+      <div className="scrollable-content">
+        <div>
+          <LabelHeading>Project</LabelHeading>
+          <DropDown
+            data={Projects}
+            onChange={(value: any) => handleSelect(value, "project")}
+            field="value"
+            value={selectData?.project}
+            containerStyle={{ width: 200 }}
+          />
+        </div>
+        <div>
+          <LabelHeading>Task</LabelHeading>
+          <DropDown
+            data={Tasks}
+            onChange={(value: any) => handleSelect(value, "task")}
+            field="value"
+            value={selectData?.task}
+            containerStyle={{ width: 200 }}
+          />
+        </div>
+        <div>
+          <LabelHeading>Description</LabelHeading>
+          <textarea
+            className="w-[400px] h-[40px] p-2 border rounded resize-none text-[#3A3B3F] placeholder-[#9EA0A5]"
+            cols={40}
+            style={{
+              backgroundColor: "#fff",
+              marginBottom: 0,
+              border: "1px solid  #9EA0A5",
+              outline: "none",
+            }}
+            placeholder="Enter your description here..."
+            onChange={(event: { target: { value: any } }) => {
+              if (event.target.value.length <= 400)
+                handleSelect(event.target.value, "description");
+            }}
+            value={selectData?.description}
+          />
+        </div>
+        <div>
+          <LabelHeading>Start Task</LabelHeading>
+          <Timer setSelectData={setSelectData} selectData={selectData} />
+        </div>
       </div>
     </div>
   );
@@ -126,22 +152,67 @@ const AddTask = (props: any) => {
 const Timer = (props: any) => {
   const { setSelectData, selectData } = props;
   const [active, setActive] = useState(false);
-  const [pause, setPause] = useState(true);
   const [duration, setDuration] = useState(0);
+  const [timerWorker, setTimerWorker] = useState<Worker | null>(null);
   const { mutate: handleAddEdit } = useAddEditLog();
-  useEffect(() => {
-    let timePeriod = null;
-    if (active && pause === false) {
-      timePeriod = setInterval(() => {
-        setDuration((duration) => duration + 10);
-      }, 10);
-    } else {
-      clearInterval(timePeriod);
+
+  function initWatch() {
+    if (timerWorker === null) {
+      const startTime = new Date()
+        .toLocaleString("sv")
+        .replace("Z", "")
+        .replace(" ", "T");
+
+      const newWorker = new Worker(
+        new URL("./timerFunction/timerWorker.ts", import.meta.url)
+      );
+      newWorker.onmessage = (event) => {
+        setDuration(event?.data); // Add the pausedDuration to the current duration
+      };
+      newWorker.postMessage("start");
+      setTimerWorker(newWorker);
+      setActive(true);
+      setSelectData((prev: any) => ({
+        ...prev,
+        start: startTime,
+      }));
     }
+  }
+
+  function initResume() {
+    if (timerWorker !== null) {
+      const endTime = new Date()
+        .toLocaleString("sv")
+        .replace("Z", "")
+        .replace(" ", "T");
+      timerWorker.postMessage("stop");
+      setActive(false);
+      setSelectData((prev: any) => ({
+        ...prev,
+        end: endTime,
+      }));
+    }
+  }
+
+  const initReset = () => {
+    setDuration(0);
+    setTimerWorker(null);
+    setActive(false);
+    setSelectData({
+      project: "",
+      task: "",
+      description: "",
+      start: "",
+      end: "",
+      duration: "",
+    });
+  };
+
+  useEffect(() => {
     return () => {
-      clearInterval(timePeriod);
+      initResume();
     };
-  }, [active, pause]);
+  }, []);
 
   // api call to add time log when timer is stopped
   useEffect(() => {
@@ -159,47 +230,13 @@ const Timer = (props: any) => {
       // Format the duration as hours and minutes
       const formattedDuration = `${hours}h ${minutes}min`;
 
-      handleAddEdit({ ...selectData, duration: formattedDuration });
-      setDuration(0);
-      setSelectData({
-        project: "",
-        task: "",
-        description: "",
-        start: "",
-        end: "",
-        duration: "",
+      handleAddEdit({
+        payload: { ...selectData, duration: formattedDuration },
       });
+      initReset();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectData]);
 
-  const initWatch = () => {
-    const startTime = new Date()
-      .toLocaleString("sv")
-      .replace("Z", "")
-      .replace(" ", "T");
-    setActive(true);
-    setPause(false);
-    setSelectData((prev: any) => ({
-      ...prev,
-      start: startTime,
-    }));
-  };
-  const initResume = () => {
-    const endTime = new Date()
-      .toLocaleString("sv")
-      .replace("Z", "")
-      .replace(" ", "T");
-    setPause(!pause);
-    setSelectData((prev: any) => ({
-      ...prev,
-      end: endTime,
-    }));
-  };
-  const initReset = () => {
-    setActive(false);
-    setDuration(0);
-  };
   return (
     <div className="flex flex-row items-center gap-[10px]">
       <Controls
@@ -207,7 +244,6 @@ const Timer = (props: any) => {
         initResume={initResume}
         initReset={initReset}
         active={active}
-        pause={pause}
       />
       <Watch time={duration} />
     </div>
@@ -225,7 +261,8 @@ const Watch = (t: any) => {
 };
 
 const Controls = (props: any) => {
-  const { initWatch, initResume, pause, active } = props;
+  const { initWatch, initResume, active } = props;
+
   const invokeTimer = (
     <div
       style={{
@@ -251,7 +288,7 @@ const Controls = (props: any) => {
       className="bg-[#018273] flex justify-center items-center"
       onClick={initResume}
     >
-      <Icon name={pause ? "rightIcon" : "pauseIcon"} height={20} width={20} />
+      <Icon name={active ? "pauseIcon" : "rightIcon"} height={20} width={20} />
     </div>
   );
   return (
@@ -334,6 +371,22 @@ const TableComponent = (props: any) => {
         field: "end",
         flex: 1.5,
         cellStyle: { color: "#3A3B3F" },
+      },
+      {
+        headerName: "Duration",
+        field: "duration",
+        flex: 1,
+        cellStyle: { color: "#3A3B3F" },
+      },
+      {
+        headerName: "",
+        cellRendererSelector: (params: { node: { group: any } }) => {
+          if (params && params.node && params.node.group) {
+            return null; // Return null for group nodes
+          }
+          return { component: createCustomCellRender };
+        },
+        width: 0,
       },
     ],
     []

@@ -10,6 +10,10 @@ import Reports from "./reports";
 import Settings from "./settings";
 import Support from "./support";
 import TermsAndCondition from "./termsCondition";
+import EditIcon from "./editIcon";
+import DeleteIcon from "./deleteIcon";
+import ExclamationIcon from "./exclamationIcon";
+import CloseIcon from "./closeIcon";
 
 const iconName = {
   defaultAvatar: {
@@ -44,6 +48,18 @@ const iconName = {
   },
   terms: {
     component: TermsAndCondition,
+  },
+  editIcon: {
+    component: EditIcon,
+  },
+  deleteIcon: {
+    component: DeleteIcon,
+  },
+  exclamationIcon: {
+    component: ExclamationIcon,
+  },
+  closeIcon: {
+    component: CloseIcon,
   },
 };
 

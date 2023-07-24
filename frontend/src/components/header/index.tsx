@@ -17,7 +17,7 @@ const Header: React.FC<HeaderProps> = ({ pageTitle }: any) => {
         <div className="flex flex-row items-center gap-[80px]">
           <SearchInputWrapper handleSelect={(e: any) => {}} field="name">
             <Input
-              id="contentCreation_input_productType"
+              id="global_search"
               placeholder="search"
               onChange={(event: { target: { value: any } }) => {}}
               iconLeft={

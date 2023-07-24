@@ -37,7 +37,7 @@ const Input = (props: any) => {
         data-te-input-wrapper-init
         style={{
           borderWidth: 1,
-          borderColor: "rgba(255, 255, 255, 0.1)",
+          borderColor: "#9EA0A5",
           height: 40,
           backgroundColor: "#ffff",
           opacity: disabled ? 0.4 : 1,
@@ -62,6 +62,7 @@ const Input = (props: any) => {
           style={{
             backgroundColor: "#ffff",
             color: "#3A3B3F",
+            outline: "none",
             ...inputStyle,
           }}
           autoComplete="off"

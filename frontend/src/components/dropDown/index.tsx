@@ -15,6 +15,9 @@ const DropDown = ({
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => {
+    if (!value) {
+      setSelected("");
+    }
     setOpen((prevOpen) => !prevOpen);
   };
 
