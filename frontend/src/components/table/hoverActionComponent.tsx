@@ -4,7 +4,10 @@ export const HoverActionComponent = (props: any) => {
   return (
     <div className="action-container absolute sm:fixed sm:hidden block h-full">
       <div className="flex gap-3 px-3.5 items-center h-full">
-        <a href={`/dashboard/`} className="">
+        <a
+          href={`/dashboard#updateLog?taskId=${props?.params?.data?._id}`}
+          className=""
+        >
           <div
             className="border rounded-full flex items-center justify-center cursor-pointer trailing-action"
             id="hover_copy_icon"

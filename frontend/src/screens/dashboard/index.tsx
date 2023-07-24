@@ -6,11 +6,12 @@ import Icon from "../../icons";
 import DropDown from "../../components/dropDown";
 import { useGetAllLogs } from "../../hooks/useGetAllLogs";
 import { Projects, Tasks } from "../../constants";
-import { useAddEditLog } from "../../hooks/useAddEditLog";
+import { useAddEditLog } from "../../hooks/mutation/useAddEditLog";
 import createCustomCellRender from "../../components/table/customCellComponent";
 import DeleteModalComponent from "../../patterns/popup/deleteModalComponent";
 import { useNavigate } from "react-router-dom";
-import { useDeleteLog } from "../../hooks/useDeleteLog";
+import { useDeleteLog } from "../../hooks/mutation/useDeleteLog";
+import EditModalComponent from "../../patterns/popup/editModalComponent";
 
 export const Dashboard = () => {
   const [selectData, setSelectData] = useState({
@@ -83,6 +84,14 @@ const RightSideBar = (props: any) => {
         }}
         handleSecondaryCta={() => navigate("#")}
       />
+
+      <EditModalComponent
+        title="Edit Time Log"
+        subTitle="You can edit the below fields"
+        primaryCtaText="Save"
+        secondaryCtaText="Cancel"
+        handleSecondaryCta={() => navigate("#")}
+      />
     </div>
   );
 };
@@ -90,49 +99,51 @@ const RightSideBar = (props: any) => {
 const AddTask = (props: any) => {
   const { handleSelect, selectData, setSelectData } = props;
   return (
-    <div className="flex flex-1 flex-row mb-[20px] bg-white border-1 border-solid border-gray-300 p-[20px] gap-[40px] items-center rounded-[8px]">
-      <div>
-        <LabelHeading>Project</LabelHeading>
-        <DropDown
-          data={Projects}
-          onChange={(value: any) => handleSelect(value, "project")}
-          field="value"
-          value={selectData?.project}
-          containerStyle={{ width: 200 }}
-        />
-      </div>
-      <div>
-        <LabelHeading>Task</LabelHeading>
-        <DropDown
-          data={Tasks}
-          onChange={(value: any) => handleSelect(value, "task")}
-          field="value"
-          value={selectData?.task}
-          containerStyle={{ width: 200 }}
-        />
-      </div>
-      <div>
-        <LabelHeading>Description</LabelHeading>
-        <textarea
-          className="w-[400px] h-[40px] p-2 border rounded resize-none text-[#3A3B3F] placeholder-[#9EA0A5]"
-          cols={40}
-          style={{
-            backgroundColor: "#fff",
-            marginBottom: 0,
-            border: "1px solid  #9EA0A5",
-            outline: "none",
-          }}
-          placeholder="Enter your description here..."
-          onChange={(event: { target: { value: any } }) => {
-            if (event.target.value.length <= 400)
-              handleSelect(event.target.value, "description");
-          }}
-          value={selectData?.description}
-        />
-      </div>
-      <div>
-        <LabelHeading>Start Task</LabelHeading>
-        <Timer setSelectData={setSelectData} selectData={selectData} />
+    <div className="flex flex-1 flex-row mb-[20px] bg-white border-1 border-solid border-gray-300 rounded-[8px]">
+      <div className="scrollable-content">
+        <div>
+          <LabelHeading>Project</LabelHeading>
+          <DropDown
+            data={Projects}
+            onChange={(value: any) => handleSelect(value, "project")}
+            field="value"
+            value={selectData?.project}
+            containerStyle={{ width: 200 }}
+          />
+        </div>
+        <div>
+          <LabelHeading>Task</LabelHeading>
+          <DropDown
+            data={Tasks}
+            onChange={(value: any) => handleSelect(value, "task")}
+            field="value"
+            value={selectData?.task}
+            containerStyle={{ width: 200 }}
+          />
+        </div>
+        <div>
+          <LabelHeading>Description</LabelHeading>
+          <textarea
+            className="w-[400px] h-[40px] p-2 border rounded resize-none text-[#3A3B3F] placeholder-[#9EA0A5]"
+            cols={40}
+            style={{
+              backgroundColor: "#fff",
+              marginBottom: 0,
+              border: "1px solid  #9EA0A5",
+              outline: "none",
+            }}
+            placeholder="Enter your description here..."
+            onChange={(event: { target: { value: any } }) => {
+              if (event.target.value.length <= 400)
+                handleSelect(event.target.value, "description");
+            }}
+            value={selectData?.description}
+          />
+        </div>
+        <div>
+          <LabelHeading>Start Task</LabelHeading>
+          <Timer setSelectData={setSelectData} selectData={selectData} />
+        </div>
       </div>
     </div>
   );
@@ -219,7 +230,9 @@ const Timer = (props: any) => {
       // Format the duration as hours and minutes
       const formattedDuration = `${hours}h ${minutes}min`;
 
-      handleAddEdit({ ...selectData, duration: formattedDuration });
+      handleAddEdit({
+        payload: { ...selectData, duration: formattedDuration },
+      });
       initReset();
     }
   }, [selectData]);

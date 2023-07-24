@@ -109,3 +109,14 @@
 .fc .fc-daygrid-day-number {
   color: #3a3b3f;
 }
+
+.scrollable-content {
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+  padding: 20px;
+  /* Set the width of the scrollable container */
+  width: fit-content; /* or you can set a fixed width if needed */
+  overflow-x: auto; /* Enable horizontal scrolling when content overflows */
+  white-space: nowrap; /* Prevent content from wrapping to a new line */
+}
