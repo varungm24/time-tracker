@@ -3,8 +3,13 @@ import { Calendar } from "@fullcalendar/core";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
-const MyCalendar: React.FC = () => {
+const MyCalendar: React.FC = (props: any) => {
+  const { allTimeLogs } = props;
   const calendarRef = useRef<HTMLDivElement>(null);
+  const updatedTimeLog = allTimeLogs?.map((item: any) => ({
+    ...item,
+    ["display"]: "background",
+  }));
 
   useEffect(() => {
     const calendar = new Calendar(calendarRef.current!, {
@@ -16,16 +21,7 @@ const MyCalendar: React.FC = () => {
         right: "timeGridWeek,timeGridDay",
       },
       selectable: true,
-      selectOverlap: function(event) {
-        return alert("Cannot select the occupied slots");
-      },
-      events: [
-        {
-          start: "2023-07-20T10:00:00",
-          end: "2023-07-20T16:20:00",
-          display: "background",
-        },
-      ],
+      events: updatedTimeLog,
     });
 
     calendar.render();
@@ -33,7 +29,7 @@ const MyCalendar: React.FC = () => {
     return () => {
       calendar.destroy();
     };
-  }, []);
+  }, [updatedTimeLog]);
 
   return <div ref={calendarRef} />;
 };
