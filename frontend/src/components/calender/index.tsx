@@ -4,11 +4,10 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
 const MyCalendar: React.FC = (props: any) => {
-  const { allTimeLogs } = props;
+  const { allTimeLogs, handleAddTime, handleEditTime } = props;
   const calendarRef = useRef<HTMLDivElement>(null);
   const updatedTimeLog = allTimeLogs?.map((item: any) => ({
     ...item,
-    ["display"]: "background",
   }));
 
   useEffect(() => {
@@ -20,8 +19,16 @@ const MyCalendar: React.FC = (props: any) => {
         center: "title",
         right: "timeGridWeek,timeGridDay",
       },
-      selectable: true,
+      selectMirror: true,
+      selectable: true, // Enable selection on the calendar
       events: updatedTimeLog,
+      select: handleAddTime, // Add the select callback function here
+      editable: true,
+      eventClick: function (info) {
+        // Handle event click here to open edit modal/form
+        const event = info.event;
+        handleEditTime(event);
+      },
     });
 
     calendar.render();

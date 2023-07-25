@@ -10,23 +10,27 @@ import { Input } from "../../components";
 import { useAddEditLog } from "../../hooks/mutation/useAddEditLog";
 import { getDuration } from "../../utils/getDuration";
 
-interface EditModalComponentProps {
+interface AddModalComponentProps {
+  show: any;
+  setShow: any;
   subTitle: string;
   primaryCtaText: string;
   title?: string;
   handleSecondaryCta: any;
   secondaryCtaText: string;
-  leftSideCtaText: any;
+  time: object;
 }
 
-const EditModalComponent = (props: EditModalComponentProps) => {
+const AddModalComponent = (props: AddModalComponentProps) => {
   const {
-    handleSecondaryCta,
-    leftSideCtaText,
-    primaryCtaText,
-    secondaryCtaText,
+    show,
+    setShow,
     subTitle,
+    primaryCtaText,
     title,
+    handleSecondaryCta,
+    secondaryCtaText,
+    time,
   } = props;
   const url = window.location;
   const query = url?.hash?.split("=")[0]?.split("#")[1]?.split("?")[0];
@@ -45,17 +49,21 @@ const EditModalComponent = (props: EditModalComponentProps) => {
 
   const { logDetails } = useGetLogById(logId);
 
+  console.log(selectData);
+
   //functions related to time log update are below
   const handleSelect = (data: any, field: string) => {
     setSelectData({ ...selectData, [field]: data });
   };
 
   useEffect(() => {
-    if (!logDetails) return;
-    if (logDetails) {
-      setSelectData(logDetails);
+    if (!time) return;
+    if (time) {
+      const duration = getDuration(time?.start, time?.end);
+      console.log(duration);
+      setSelectData({ ...selectData, ...time, duration: duration });
     }
-  }, [logDetails, logId]);
+  }, [time]);
 
   useEffect(() => {
     const { start, end } = selectData;
@@ -69,7 +77,7 @@ const EditModalComponent = (props: EditModalComponentProps) => {
   //edit time log
   const { mutate: handleAddEdit } = useAddEditLog();
 
-  if (query !== "updateLog") return null;
+  if (!show) return null;
   else {
     return (
       <div
@@ -90,7 +98,7 @@ const EditModalComponent = (props: EditModalComponentProps) => {
                 </Text>
                 <div
                   className="bg-[#f5f6fa] flex items-center p-2 justify-center rounded-2xl cursor-pointer"
-                  onClick={() => navigate("#")}
+                  onClick={() => setShow(false)}
                 >
                   <Icon name="closeIcon" height={16} width={16} />
                 </div>
@@ -157,9 +165,9 @@ const EditModalComponent = (props: EditModalComponentProps) => {
                         id="end_time"
                         placeholder="End time"
                         value={selectData?.end || logDetails?.end}
-                        onChange={(event: { target: { value: any } }) =>
-                          handleSelect(event.target.value, "end")
-                        }
+                        onChange={(event: { target: { value: any } }) => {
+                          handleSelect(event.target.value, "end");
+                        }}
                         style={{ width: "50%" }}
                       />
                     </div>
@@ -171,7 +179,7 @@ const EditModalComponent = (props: EditModalComponentProps) => {
                       placeholder="Start time"
                       value={selectData?.duration || logDetails?.duration}
                       onChange={(event: { target: { value: any } }) =>
-                        handleSelect(event.target.value, "start")
+                        handleSelect(event.target.value, "duration")
                       }
                       style={{ width: "100%" }}
                     />
@@ -179,67 +187,39 @@ const EditModalComponent = (props: EditModalComponentProps) => {
                 </div>
               </div>
 
-              <div className="flex px-5 w-full items-center">
-                {leftSideCtaText && (
-                  <Button
-                    appearance="outlined"
-                    status={"active"}
-                    label={leftSideCtaText}
-                    onPress={() => {
-                      navigate(`/calender?taskId=${logDetails?._id}`);
-                    }}
-                    style={{
-                      padding: "3px 8px",
-                      backgroundColor: "#f5f6fa",
-                    }}
-                    textVariant="primary"
-                    className="w-32 text-sm font-semibold"
-                    textStyle={{ color: "#3a3b3f" }}
-                    iconRight={
-                      <Icon
-                        name="deleteIcon"
-                        height={13}
-                        width={13}
-                        fill={"red"}
-                      />
-                    }
-                  />
-                )}
-                <div className=" flex justify-end gap-5 py-5 w-full items-center">
-                  {handleSecondaryCta && (
-                    <div
-                      onClick={() => handleSecondaryCta()}
-                      className="cursor-pointer"
+              <div className=" flex justify-end gap-5 p-5 w-full items-center">
+                {handleSecondaryCta && (
+                  <div
+                    onClick={() => handleSecondaryCta()}
+                    className="cursor-pointer"
+                  >
+                    <Text
+                      className="text-sm font-semibold text-[#3a3b3f]"
+                      textStyle={{ color: "#3a3b3f" }}
                     >
-                      <Text
-                        className="text-sm font-semibold text-[#3a3b3f]"
-                        textStyle={{ color: "#3a3b3f" }}
-                      >
-                        {secondaryCtaText}
-                      </Text>
-                    </div>
-                  )}
+                      {secondaryCtaText}
+                    </Text>
+                  </div>
+                )}
 
-                  <Button
-                    appearance="outlined"
-                    status={"active"}
-                    label={primaryCtaText}
-                    onPress={() => {
-                      handleAddEdit({
-                        payload: { ...selectData },
-                        taskId: logId,
-                      });
-                      navigate("#");
-                    }}
-                    style={{
-                      padding: "3px 8px",
-                      backgroundColor: "#f5f6fa",
-                    }}
-                    textVariant="primary"
-                    className="w-32 text-sm font-semibold"
-                    textStyle={{ color: "#3a3b3f" }}
-                  />
-                </div>
+                <Button
+                  appearance="outlined"
+                  status={"active"}
+                  label={primaryCtaText}
+                  onPress={() => {
+                    handleAddEdit({
+                      payload: selectData,
+                    });
+                    setShow(false);
+                  }}
+                  style={{
+                    padding: "3px 8px",
+                    backgroundColor: "#f5f6fa",
+                  }}
+                  textVariant="primary"
+                  className="w-32 text-sm font-semibold"
+                  textStyle={{ color: "#3a3b3f" }}
+                />
               </div>
             </div>
           </div>
@@ -261,4 +241,4 @@ const LabelHeading = ({ children }: { children: React.ReactNode }) => {
     </Text>
   );
 };
-export default EditModalComponent;
+export default AddModalComponent;
