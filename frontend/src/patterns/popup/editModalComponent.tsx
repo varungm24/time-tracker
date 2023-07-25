@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { useGetLogById } from "../../hooks/useGetLogById";
 import { Input } from "../../components";
 import { useAddEditLog } from "../../hooks/mutation/useAddEditLog";
-import { getDuration } from "../../utils/getDuration";
+import { getDuration, getEndTime } from "../../utils/getDuration";
 
 interface EditModalComponentProps {
   subTitle: string;
@@ -28,6 +28,7 @@ const EditModalComponent = (props: EditModalComponentProps) => {
     subTitle,
     title,
   } = props;
+  const [durationModified, setDurationModified] = useState(false);
   const url = window.location;
   const query = url?.hash?.split("=")[0]?.split("#")[1]?.split("?")[0];
   const logId = url?.hash?.split("=")[1];
@@ -65,6 +66,22 @@ const EditModalComponent = (props: EditModalComponentProps) => {
       setSelectData((prevData) => ({ ...prevData, duration: duration }));
     }
   }, [selectData?.start, selectData?.end]);
+
+  const updateEndTime = () => {
+    const { start, duration } = selectData;
+
+    if (start && duration && durationModified) {
+      const newEndTime = getEndTime(start, duration);
+      setSelectData((prevData) => ({
+        ...prevData,
+        end: newEndTime,
+      }));
+    }
+  };
+
+  useEffect(() => {
+    updateEndTime();
+  }, [selectData?.duration, durationModified]);
 
   //edit time log
   const { mutate: handleAddEdit } = useAddEditLog();
@@ -148,18 +165,19 @@ const EditModalComponent = (props: EditModalComponentProps) => {
                         id="start_time"
                         placeholder="Start time"
                         value={selectData?.start || logDetails?.start}
-                        onChange={(event: { target: { value: any } }) =>
-                          handleSelect(event.target.value, "start")
-                        }
+                        onChange={(event: { target: { value: any } }) => {
+                          handleSelect(event.target.value, "start");
+                        }}
                         style={{ width: "50%" }}
                       />
                       <Input
                         id="end_time"
                         placeholder="End time"
                         value={selectData?.end || logDetails?.end}
-                        onChange={(event: { target: { value: any } }) =>
-                          handleSelect(event.target.value, "end")
-                        }
+                        onChange={(event: { target: { value: any } }) => {
+                          setDurationModified(false);
+                          handleSelect(event.target.value, "end");
+                        }}
                         style={{ width: "50%" }}
                       />
                     </div>
@@ -170,9 +188,10 @@ const EditModalComponent = (props: EditModalComponentProps) => {
                       id="start_time"
                       placeholder="Start time"
                       value={selectData?.duration || logDetails?.duration}
-                      onChange={(event: { target: { value: any } }) =>
-                        handleSelect(event.target.value, "start")
-                      }
+                      onChange={(event: { target: { value: any } }) => {
+                        handleSelect(event.target.value, "duration");
+                        setDurationModified(true);
+                      }}
                       style={{ width: "100%" }}
                     />
                   </div>
