@@ -49,8 +49,6 @@ const AddModalComponent = (props: AddModalComponentProps) => {
 
   const { logDetails } = useGetLogById(logId);
 
-  console.log(selectData);
-
   //functions related to time log update are below
   const handleSelect = (data: any, field: string) => {
     setSelectData({ ...selectData, [field]: data });
@@ -60,7 +58,6 @@ const AddModalComponent = (props: AddModalComponentProps) => {
     if (!time) return;
     if (time) {
       const duration = getDuration(time?.start, time?.end);
-      console.log(duration);
       setSelectData({ ...selectData, ...time, duration: duration });
     }
   }, [time]);

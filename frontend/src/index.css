@@ -110,6 +110,80 @@
   color: #3a3b3f;
 }
 
+.fc .fc-button-primary {
+  background-color: #c0e0dc;
+  border: 1px solid #c0e0dc;
+}
+
+.fc .fc-button-primary:hover {
+  background-color: #018273;
+  border: 1px solid #c0e0dc;
+}
+
+.fc .fc-button-primary:disabled {
+  background-color: #c0e0dc;
+  opacity: 1;
+  border: 1px solid #c0e0dc;
+}
+
+.fc-button {
+  box-shadow: none !important;
+}
+
+.fc-direction-ltr .fc-toolbar > * > :not(:first-child):not(:disabled) {
+  background-color: #018273;
+  border: 1px solid #c0e0dc;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #018273 !important;
+  border: 1px solid #c0e0dc !important;
+}
+
+/* allocated slot */
+
+.allocated-slot {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 2px;
+}
+
+.event-title {
+  font-weight: bold;
+  font-size: 16px;
+  color: #000;
+  width: 100%;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.event-subTitle {
+  font-weight: 500;
+  font-size: 10px;
+  color: #000;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.event-duration {
+  font-weight: 500;
+  font-size: 10px;
+  color: #000;
+  border-radius: 4px;
+}
+
+/* Style for the event container (optional) */
+.fc-event {
+  border: 1px solid #3a3b3f;
+  background-color: #c0e0dc;
+}
+
+/* add task styles */
+
 .scrollable-content {
   display: flex;
   flex-direction: row;

@@ -19,6 +19,7 @@ const MyCalendar: React.FC = (props: any) => {
         center: "title",
         right: "timeGridWeek,timeGridDay",
       },
+      aspectRatio: 1,
       selectMirror: true,
       selectable: true, // Enable selection on the calendar
       events: updatedTimeLog,
@@ -28,6 +29,31 @@ const MyCalendar: React.FC = (props: any) => {
         // Handle event click here to open edit modal/form
         const event = info.event;
         handleEditTime(event);
+      },
+      eventContent: function (info) {
+        const project = info?.event?.extendedProps?.project || null;
+        const task = info?.event?.extendedProps?.task || "(project name)";
+        const duration = info.timeText;
+
+        const eventTitleElement = document.createElement("div");
+        const eventSubTitleElement = document.createElement("div");
+        const eventTimeElement = document.createElement("div");
+        eventTitleElement.classList.add("event-title");
+        eventSubTitleElement.classList.add("event-subTitle");
+        eventTimeElement.classList.add("event-duration");
+        eventTitleElement.innerText = project;
+        eventSubTitleElement.innerText = task;
+        eventTimeElement.innerText = duration;
+        const eventDetails = document.createElement("div");
+        eventDetails.appendChild(eventTitleElement);
+        eventDetails.appendChild(eventSubTitleElement);
+
+        const eventContent = document.createElement("div");
+        eventContent.classList.add("allocated-slot");
+        eventContent.appendChild(eventDetails);
+        eventContent.appendChild(eventTimeElement);
+
+        return { domNodes: [eventContent] };
       },
     });
 
