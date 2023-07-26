@@ -174,6 +174,7 @@ const EditModalComponent = (props: EditModalComponentProps) => {
                         handleSelect(event.target.value, "start")
                       }
                       style={{ width: "100%" }}
+                      disabled
                     />
                   </div>
                 </div>
