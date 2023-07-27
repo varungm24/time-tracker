@@ -14,6 +14,8 @@ import EditIcon from "./editIcon";
 import DeleteIcon from "./deleteIcon";
 import ExclamationIcon from "./exclamationIcon";
 import CloseIcon from "./closeIcon";
+import Left from "./left";
+import Right from "./right";
 
 const iconName = {
   defaultAvatar: {
@@ -60,6 +62,12 @@ const iconName = {
   },
   closeIcon: {
     component: CloseIcon,
+  },
+  left: {
+    component: Left,
+  },
+  right: {
+    component: Right,
   },
 };
 

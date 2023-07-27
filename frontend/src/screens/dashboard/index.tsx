@@ -361,7 +361,6 @@ const LabelHeading = ({ children }: { children: React.ReactNode }) => {
 const TableComponent = (props: any) => {
   const { allTimeLogs, date, setDate, dateTime, setDateTime } = props;
   const tableRef = useRef();
-
   const columnDefs = useMemo(
     () => [
       {
@@ -461,9 +460,14 @@ const TableTopComponent = (props: any) => {
 
   const incrementDate = () => {
     const tomorrow = new Date(dateTime);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    setDateTime(tomorrow);
-    setDate(formatDate(tomorrow));
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    tomorrow.setHours(0, 0, 0, 0);
+    if (tomorrow <= currentDate) {
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      setDateTime(tomorrow);
+      setDate(formatDate(tomorrow));
+    }
   };
 
   const formatDate = (date: any) => {
@@ -482,10 +486,19 @@ const TableTopComponent = (props: any) => {
             decrementDate();
           }}
         >
-          <Text className="text-[#3A3B3F] text-2xl font-bold">{"<"}</Text>
+          <Icon name="left" width={24} height={24} />
         </div>
         <div>
-          <Text className="text-[#3A3B3F] font-bold">{date}</Text>
+          <Text className="text-[#3A3B3F] font-bold">
+            {new Date(date)
+              .toLocaleDateString(undefined, {
+                weekday: "short",
+                month: "short",
+                day: "2-digit",
+                year: "numeric",
+              })
+              .replace(/,/, "")}
+          </Text>
         </div>
         <div
           className="cursor-pointer text-2xl  font-bold"
@@ -493,7 +506,7 @@ const TableTopComponent = (props: any) => {
             incrementDate();
           }}
         >
-          <Text className="text-[#3A3B3F]">{">"}</Text>
+          <Icon name="right" width={24} height={24} />
         </div>
       </div>
     </div>

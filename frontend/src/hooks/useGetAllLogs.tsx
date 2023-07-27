@@ -5,18 +5,23 @@ export const useGetAllLogs = (queryParams: any) => {
   const { data: allTimeLogs, refetch } = useQuery(
     [`getAllTask`],
     async () => {
-      let res;
-      if (queryParams) {
-        res = await getAllTask({ start: queryParams });
-      } else res = await getAllTask();
-      return res?.taskData;
+      try {
+        let res;
+        if (queryParams) {
+          res = await getAllTask({ start: queryParams });
+        } else {
+          res = await getAllTask();
+        }
+
+        return res?.taskData;
+      } catch (error) {
+        console.log(error);
+        return [];
+      }
     },
     {
       initialData: [],
       retry: false,
-      onError: (error) => {
-        console.log(error);
-      },
     }
   );
 
