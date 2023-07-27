@@ -143,6 +143,7 @@ const RightSideBar = (props: any) => {
   );
 };
 
+
 const AddTask = (props: any) => {
   const { handleSelect, selectData, setSelectData, isTimer, setIsTimer } =
     props;
@@ -218,12 +219,12 @@ const AddTask = (props: any) => {
           onChange={(value: any) => handleSelect(value, "project")}
           field="value"
           value={selectData?.project}
-          containerStyle={{ width: 200 }}
-        />
-      </div>
-      <div>
-        <LabelHeading>Task</LabelHeading>
-        <DropDown
+          containerStyle={{ width:containerWidth}}
+          />
+          </div>
+          <div className="md:w-1/2">
+            <LabelHeading>Task</LabelHeading>
+            <DropDown
           data={Tasks}
           onChange={(value: any) => handleSelect(value, "task")}
           field="value"
@@ -383,7 +384,7 @@ const AddTask = (props: any) => {
       </div>
     </div>
   );
-};
+}
 
 const Timer = (props: any) => {
   const { setSelectData, selectData } = props;
