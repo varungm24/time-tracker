@@ -97,34 +97,62 @@ const RightSideBar = (props: any) => {
   );
 };
 
+
 const AddTask = (props: any) => {
+  //cotainer width change
   const { handleSelect, selectData, setSelectData } = props;
+  const [containerWidth, setContainerWidth] = useState(200);
+
+  //function for container width
+  useEffect(() => {
+    const handleResize = () => {
+      const newWidth = window.innerWidth < 700 ? 150 : 200;
+      setContainerWidth(newWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
-    <div className="flex flex-1 flex-row mb-[20px] bg-white border-1 border-solid border-gray-300 p-[20px] gap-[40px] items-center rounded-[8px]">
-      <div>
-        <LabelHeading>Project</LabelHeading>
-        <DropDown
+    <div className="md:grid  flex-col md:flex-row mb-[20px] bg-white border-1 border-solid border-gray-300 p-[20px] gap-[2px] items-center rounded-[8px]">
+
+     <div className="md:flex grid md:gap-[30px] ">
+      <div className="w-fit md:w-1/2">
+        <div className="flex md:flex-row flex-row gap-[10px] md:gap-[100px]">
+          <div className="md:w-1/3 ">
+            <LabelHeading>Project</LabelHeading>
+            <DropDown
           data={Projects}
           onChange={(value: any) => handleSelect(value, "project")}
           field="value"
           value={selectData?.project}
-          containerStyle={{ width: 200 }}
-        />
-      </div>
-      <div>
-        <LabelHeading>Task</LabelHeading>
-        <DropDown
+          containerStyle={{ width:containerWidth}}
+          />
+          </div>
+          <div className="md:w-1/2">
+            <LabelHeading>Task</LabelHeading>
+            <DropDown
           data={Tasks}
           onChange={(value: any) => handleSelect(value, "task")}
           field="value"
           value={selectData?.task}
-          containerStyle={{ width: 200 }}
-        />
+          containerStyle={{width:containerWidth}}
+          />
+          </div>
+        </div>
       </div>
-      <div>
-        <LabelHeading>Description</LabelHeading>
-        <textarea
-          className="w-[400px] h-[40px] p-2 border rounded resize-none text-[#3A3B3F] placeholder-[#9EA0A5]"
+      <div className="w-full md:w-1/2">
+          {/* Description and Start Task wrapped in a parent div */}
+          <div className={`${window.innerWidth < 1200 ? "md:flex md:flex-col md:gap-[80px]" : "md:flex md:flex-row md:gap-[80px]"}`}>
+            <div className="md:w-full">
+              <LabelHeading>Description</LabelHeading>
+            <textarea
+              className="w-full h-[40px] md:h-[40px] p-2 border rounded resize-none text-[#3A3B3F] placeholder-[#9EA0A5]"
+              // ... (other attributes)
           cols={40}
           style={{
             backgroundColor: "#fff",
@@ -140,13 +168,16 @@ const AddTask = (props: any) => {
           value={selectData?.description}
         />
       </div>
-      <div>
-        <LabelHeading>Start Task</LabelHeading>
-        <Timer setSelectData={setSelectData} selectData={selectData} />
+      <div className={`${window.innerWidth < 1200 ? "md:w-full" : "md:w-auto"}`}>
+              <LabelHeading>Start Task</LabelHeading>
+              <Timer setSelectData={setSelectData} selectData={selectData} />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
-};
+}
 
 const Timer = (props: any) => {
   const { setSelectData, selectData } = props;
