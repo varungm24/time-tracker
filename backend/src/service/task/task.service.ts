@@ -32,9 +32,12 @@ export class TaskService {
   }
 
   //getAllTasks
-  async getAllTasks(): Promise<ITask[]> {
-    const taskData = await this.taskModal.find();
-    if (!taskData || taskData.length == 0) {
+  async getAllTasks(startValue: string): Promise<ITask[]> {
+    const query = startValue
+      ? { start: { $regex: `^${startValue}`, $options: 'i' } }
+      : {};
+    const taskData = await this.taskModal.find(query);
+    if (!taskData || taskData.length === 0) {
       throw new NotFoundException('Tasks not found!');
     }
     return taskData;

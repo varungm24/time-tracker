@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Res,
 } from '@nestjs/common';
 import { CreateTaskDto } from 'src/dto/create-task.dto';
@@ -59,12 +60,12 @@ export class TaskController {
 
   //get all the tasks
   @Get()
-  async getTasks(@Res() response) {
+  async getTasks(@Res() response, @Query('start') startValue: string) {
     try {
-      const TaskData = await this.taskService.getAllTasks();
+      const taskData = await this.taskService.getAllTasks(startValue);
       return response.status(HttpStatus.OK).json({
         message: 'All Time logs are found successfully',
-        TaskData,
+        taskData,
       });
     } catch (err) {
       return response.status(err.status).json(err.response);

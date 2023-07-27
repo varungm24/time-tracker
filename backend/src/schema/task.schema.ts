@@ -14,4 +14,8 @@ export class Task {
   @Prop()
   duration: string;
 }
-export const TaskSchema = SchemaFactory.createForClass(Task);
+
+const TaskSchema = SchemaFactory.createForClass(Task);
+TaskSchema.index({ start: 1 });
+
+export { TaskSchema };
