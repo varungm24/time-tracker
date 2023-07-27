@@ -16,6 +16,8 @@ import ExclamationIcon from "./exclamationIcon";
 import CloseIcon from "./closeIcon";
 import Left from "./left";
 import Right from "./right";
+import List from "./list";
+import Timer from "./timer";
 
 const iconName = {
   defaultAvatar: {
@@ -68,6 +70,12 @@ const iconName = {
   },
   right: {
     component: Right,
+  },
+  list: {
+    component: List,
+  },
+  timer: {
+    component: Timer,
   },
 };
 

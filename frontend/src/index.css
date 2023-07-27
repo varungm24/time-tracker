@@ -46,7 +46,8 @@
 }
 
 .ag-overlay {
-  display: none !important;
+  color: #3a3b3f;
+  font-weight: 500;
 }
 
 .ag-root-wrapper {
@@ -193,4 +194,19 @@
   width: fit-content; /* or you can set a fixed width if needed */
   overflow-x: auto; /* Enable horizontal scrolling when content overflows */
   white-space: nowrap; /* Prevent content from wrapping to a new line */
+}
+
+.add-task-dashboard .MuiOutlinedInput-notchedOutline {
+  border-color: rgb(158, 160, 165) !important;
+  border-width: 1px !important;
+  width: 200px !important;
+}
+
+.add-task-dashboard .css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root {
+  right: 28px;
+}
+
+.edit-task-dashboard .MuiOutlinedInput-notchedOutline {
+  border-color: rgb(158, 160, 165) !important;
+  border-width: 1px !important;
 }

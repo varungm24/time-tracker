@@ -8,7 +8,11 @@ import { useEffect, useState } from "react";
 import { useGetLogById } from "../../hooks/useGetLogById";
 import { Input } from "../../components";
 import { useAddEditLog } from "../../hooks/mutation/useAddEditLog";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { getDuration } from "../../utils/getDuration";
+import dayjs from "dayjs";
 
 interface EditModalComponentProps {
   subTitle: string;
@@ -38,6 +42,7 @@ const EditModalComponent = (props: EditModalComponentProps) => {
     start: "",
     end: "",
     duration: "",
+    date: new Date(),
   });
   const navigate = useNavigate();
 
@@ -53,9 +58,28 @@ const EditModalComponent = (props: EditModalComponentProps) => {
   useEffect(() => {
     if (!logDetails) return;
     if (logDetails) {
-      setSelectData(logDetails);
+      const dateValue = new Date(logDetails?.start);
+
+      setSelectData({ ...logDetails, date: dateValue });
     }
   }, [logDetails, logId]);
+
+  useEffect(() => {
+    const dateValue = new Date(selectData?.date)
+      ?.toLocaleString("sv")
+      ?.split(" ")[0];
+
+    setSelectData((prev: any) => ({
+      ...prev,
+      start: dateValue
+        ? `${dateValue}T${selectData?.start?.split("T")[1]}`
+        : selectData?.start,
+
+      end: dateValue
+        ? `${dateValue}T${selectData?.end?.split("T")[1]}`
+        : selectData?.end,
+    }));
+  }, [selectData?.date]);
 
   useEffect(() => {
     const { start, end } = selectData;
@@ -108,7 +132,7 @@ const EditModalComponent = (props: EditModalComponentProps) => {
                       data={Projects}
                       onChange={(value: any) => handleSelect(value, "project")}
                       field="value"
-                      value={selectData?.project || logDetails?.project}
+                      value={selectData?.project}
                       containerStyle={{ width: "100%" }}
                     />
                   </div>
@@ -118,7 +142,7 @@ const EditModalComponent = (props: EditModalComponentProps) => {
                       data={Tasks}
                       onChange={(value: any) => handleSelect(value, "task")}
                       field="value"
-                      value={selectData?.task || logDetails?.task}
+                      value={selectData?.task}
                       containerStyle={{ width: "100%" }}
                     />
                   </div>
@@ -138,8 +162,24 @@ const EditModalComponent = (props: EditModalComponentProps) => {
                         if (event.target.value.length <= 400)
                           handleSelect(event.target.value, "description");
                       }}
-                      value={selectData?.description || logDetails?.description}
+                      value={selectData?.description}
                     />
+                  </div>
+                  <div style={{ width: "100%" }}>
+                    <LabelHeading>Date</LabelHeading>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        value={dayjs(new Date(selectData?.date))}
+                        defaultValue={dayjs(new Date(selectData?.date))}
+                        onChange={(event: any) => {
+                          handleSelect(event?.$d, "date");
+                        }}
+                        className="edit-task-dashboard"
+                        slotProps={{
+                          textField: { size: "small", fullWidth: true },
+                        }}
+                      />
+                    </LocalizationProvider>
                   </div>
                   <div>
                     <LabelHeading>Start & End time</LabelHeading>
@@ -147,7 +187,7 @@ const EditModalComponent = (props: EditModalComponentProps) => {
                       <Input
                         id="start_time"
                         placeholder="Start time"
-                        value={selectData?.start || logDetails?.start}
+                        value={selectData?.start}
                         onChange={(event: { target: { value: any } }) =>
                           handleSelect(event.target.value, "start")
                         }
@@ -156,7 +196,7 @@ const EditModalComponent = (props: EditModalComponentProps) => {
                       <Input
                         id="end_time"
                         placeholder="End time"
-                        value={selectData?.end || logDetails?.end}
+                        value={selectData?.end}
                         onChange={(event: { target: { value: any } }) =>
                           handleSelect(event.target.value, "end")
                         }
@@ -164,12 +204,13 @@ const EditModalComponent = (props: EditModalComponentProps) => {
                       />
                     </div>
                   </div>
+
                   <div>
                     <LabelHeading>Duration</LabelHeading>
                     <Input
                       id="start_time"
                       placeholder="Start time"
-                      value={selectData?.duration || logDetails?.duration}
+                      value={selectData?.duration}
                       onChange={(event: { target: { value: any } }) =>
                         handleSelect(event.target.value, "start")
                       }
