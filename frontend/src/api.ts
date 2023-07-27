@@ -1,7 +1,16 @@
 import { apiUrl } from "./config";
 
-export const apiCall = async (url: string, options: any) => {
+export const apiCall = async (
+  url: string,
+  options: any,
+  queryParams?: Record<string, string>
+) => {
   try {
+    const queryString = new URLSearchParams(queryParams).toString();
+    const apiUrlWithParams = queryParams
+      ? `${apiUrl}/${url}?${queryString}`
+      : `${apiUrl}/${url}`;
+
     const requestOptions = {
       method: options?.method,
       headers: {
@@ -10,7 +19,7 @@ export const apiCall = async (url: string, options: any) => {
       body: JSON.stringify(options?.payload),
     };
 
-    const response = await fetch(`${apiUrl}/${url}`, requestOptions);
+    const response = await fetch(apiUrlWithParams, requestOptions);
 
     if (!response.ok) {
       throw new Error("Failed to get time log");
@@ -38,8 +47,10 @@ export const addTask = async (payload: any) => {
 //   return apiCall(`${userId}/task`, { method: "GET" });
 // };
 
-export const getAllTask = async () => {
-  return apiCall("task", { method: "GET" });
+export const getAllTask = async (queryParams: any) => {
+  if (queryParams) {
+    return apiCall("task", { method: "GET" }, queryParams);
+  } else return apiCall("task", { method: "GET" });
 };
 
 export const updateTask = async (payload: any, taskId: any) => {

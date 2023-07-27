@@ -23,6 +23,8 @@ export const Dashboard = () => {
     end: "",
     duration: "",
   });
+  const [date, setDate] = useState("");
+  const [dateTime, setDateTime] = useState({});
 
   //functions related to time log entry are below
   const handleSelect = (data: any, field: string) => {
@@ -30,7 +32,21 @@ export const Dashboard = () => {
   };
 
   //get all time logs is called here
-  const { allTimeLogs } = useGetAllLogs();
+
+  useEffect(() => {
+    const today = new Date(Date.now());
+    setDateTime(today);
+
+    const day = today.toLocaleString("sv").replace("Z", "").replace(" ", "T");
+    const fetchDay = day.split("T")[0];
+    setDate(fetchDay);
+  }, []);
+
+  const { allTimeLogs, refetch } = useGetAllLogs(date);
+
+  useEffect(() => {
+    refetch();
+  }, [date]);
 
   return (
     <div
@@ -47,6 +63,10 @@ export const Dashboard = () => {
           handleSelect={handleSelect}
           selectData={selectData}
           setSelectData={setSelectData}
+          date={date}
+          setDate={setDate}
+          dateTime={dateTime}
+          setDateTime={setDateTime}
         />
       </div>
     </div>
@@ -54,7 +74,16 @@ export const Dashboard = () => {
 };
 
 const RightSideBar = (props: any) => {
-  const { allTimeLogs, handleSelect, selectData, setSelectData } = props;
+  const {
+    allTimeLogs,
+    handleSelect,
+    selectData,
+    setSelectData,
+    date,
+    setDate,
+    dateTime,
+    setDateTime,
+  } = props;
   const navigate = useNavigate();
   const url = window.location;
   const taskId = url?.search?.split("=")[1];
@@ -72,7 +101,13 @@ const RightSideBar = (props: any) => {
         setSelectData={setSelectData}
       />
       <ProductivityCards />
-      <TableComponent allTimeLogs={allTimeLogs} />
+      <TableComponent
+        allTimeLogs={allTimeLogs}
+        date={date}
+        setDate={setDate}
+        dateTime={dateTime}
+        setDateTime={setDateTime}
+      />
 
       <DeleteModalComponent
         promptText="Delete the log"
@@ -324,7 +359,7 @@ const LabelHeading = ({ children }: { children: React.ReactNode }) => {
 };
 
 const TableComponent = (props: any) => {
-  const { allTimeLogs } = props;
+  const { allTimeLogs, date, setDate, dateTime, setDateTime } = props;
   const tableRef = useRef();
 
   const columnDefs = useMemo(
@@ -390,7 +425,12 @@ const TableComponent = (props: any) => {
 
   return (
     <div className="flex flex-col w-full h-full">
-      <TableTopComponent />
+      <TableTopComponent
+        date={date}
+        setDate={setDate}
+        dateTime={dateTime}
+        setDateTime={setDateTime}
+      />
       <div
         id="myGrid"
         className="ag-theme-alpine w-full h-full overflow-x-scroll"
@@ -409,14 +449,52 @@ const TableComponent = (props: any) => {
   );
 };
 
-const TableTopComponent = () => {
+const TableTopComponent = (props: any) => {
+  const { date, setDate, dateTime, setDateTime } = props;
+
+  const decrementDate = () => {
+    const yesterday = new Date(dateTime);
+    yesterday.setDate(yesterday.getDate() - 1);
+    setDateTime(yesterday);
+    setDate(formatDate(yesterday));
+  };
+
+  const incrementDate = () => {
+    const tomorrow = new Date(dateTime);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    setDateTime(tomorrow);
+    setDate(formatDate(tomorrow));
+  };
+
+  const formatDate = (date: any) => {
+    return date.toISOString().split("T")[0];
+  };
+
   return (
     <div
       className="justify-between flex border-t border-r border-l rounded-t-lg
        border-[#F5F6FA] w-full h-16  bg-white px-6"
     >
-      <div className=" flex items-center">
-        <div className="text-lg text-[#3A3B3F]">Today's time logs</div>
+      <div className=" flex flex-row items-center gap-[15px]">
+        <div
+          className="cursor-pointer"
+          onClick={() => {
+            decrementDate();
+          }}
+        >
+          <Text className="text-[#3A3B3F] text-2xl font-bold">{"<"}</Text>
+        </div>
+        <div>
+          <Text className="text-[#3A3B3F] font-bold">{date}</Text>
+        </div>
+        <div
+          className="cursor-pointer text-2xl  font-bold"
+          onClick={() => {
+            incrementDate();
+          }}
+        >
+          <Text className="text-[#3A3B3F]">{">"}</Text>
+        </div>
       </div>
     </div>
   );
