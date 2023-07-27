@@ -1,12 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllTask } from "../api";
 
-export const useGetAllLogs = () => {
+export const useGetAllLogs = (queryParams: any) => {
   const { data: allTimeLogs, refetch } = useQuery(
     [`getAllTask`],
     async () => {
-      const res = await getAllTask();
-      return res?.TaskData;
+      let res;
+      if (queryParams) {
+        res = await getAllTask({ start: queryParams });
+      } else res = await getAllTask();
+      return res?.taskData;
     },
     {
       initialData: [],
