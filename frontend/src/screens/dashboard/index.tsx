@@ -118,9 +118,9 @@ const AddTask = (props: any) => {
   }, []);
 
   return (
-    <div className="md:grid  flex-col md:flex-row mb-[20px] bg-white border-1 border-solid border-gray-300 p-[20px] gap-[2px] items-center rounded-[8px]">
+    <div className="flex flex-col md:flex-row mb-[20px] bg-white border-1 border-solid border-gray-300 p-[20px] gap-[2px] items-center rounded-[8px]">
 
-     <div className="md:flex grid md:gap-[30px] ">
+     <div className="md:flex md:gap-[30px] ">
       <div className="w-fit md:w-1/2">
         <div className="flex md:flex-row flex-row gap-[10px] md:gap-[100px]">
           <div className="md:w-1/3 ">
@@ -146,10 +146,9 @@ const AddTask = (props: any) => {
         </div>
       </div>
       <div className="w-full md:w-1/2">
-          {/* Description and Start Task wrapped in a parent div */}
-          <div className={`${window.innerWidth < 1200 ? "md:flex md:flex-col md:gap-[80px]" : "md:flex md:flex-row md:gap-[80px]"}`}>
-            <div className="md:w-full">
-              <LabelHeading>Description</LabelHeading>
+        <div className="flex md:flex-row flex-col md:gap-[80px]">
+          <div className="md:w-full">
+            <LabelHeading>Description</LabelHeading>
             <textarea
               className="w-full h-[40px] md:h-[40px] p-2 border rounded resize-none text-[#3A3B3F] placeholder-[#9EA0A5]"
               // ... (other attributes)
@@ -168,7 +167,7 @@ const AddTask = (props: any) => {
           value={selectData?.description}
         />
       </div>
-      <div className={`${window.innerWidth < 1200 ? "md:w-full" : "md:w-auto"}`}>
+      <div className={`md:w-1/2 ${window.innerWidth < 1200 ? "md:block" : "md:inline-block"}`}>
               <LabelHeading>Start Task</LabelHeading>
               <Timer setSelectData={setSelectData} selectData={selectData} />
             </div>
