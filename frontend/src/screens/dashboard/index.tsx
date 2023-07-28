@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { Header, Text } from "../../components";
+import { Button, Header, Input, Text } from "../../components";
 import LeftSideBar from "../../container/leftSideBar";
 import Icon from "../../icons";
 import DropDown from "../../components/dropDown";
@@ -13,6 +13,9 @@ import { useNavigate } from "react-router-dom";
 import { useDeleteLog } from "../../hooks/mutation/useDeleteLog";
 import EditModalComponent from "../../patterns/popup/editModalComponent";
 import { getDuration } from "../../utils/getDuration";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 export const Dashboard = () => {
   const [selectData, setSelectData] = useState({
@@ -22,9 +25,11 @@ export const Dashboard = () => {
     start: "",
     end: "",
     duration: "",
+    date: "",
   });
   const [date, setDate] = useState("");
   const [dateTime, setDateTime] = useState({});
+  const [isTimer, setIsTimer] = useState(true);
 
   //functions related to time log entry are below
   const handleSelect = (data: any, field: string) => {
@@ -67,6 +72,8 @@ export const Dashboard = () => {
           setDate={setDate}
           dateTime={dateTime}
           setDateTime={setDateTime}
+          setIsTimer={setIsTimer}
+          isTimer={isTimer}
         />
       </div>
     </div>
@@ -83,6 +90,8 @@ const RightSideBar = (props: any) => {
     setDate,
     dateTime,
     setDateTime,
+    isTimer,
+    setIsTimer,
   } = props;
   const navigate = useNavigate();
   const url = window.location;
@@ -99,6 +108,8 @@ const RightSideBar = (props: any) => {
         handleSelect={handleSelect}
         selectData={selectData}
         setSelectData={setSelectData}
+        setIsTimer={setIsTimer}
+        isTimer={isTimer}
       />
       <ProductivityCards />
       <TableComponent
@@ -133,9 +144,73 @@ const RightSideBar = (props: any) => {
 };
 
 const AddTask = (props: any) => {
-  const { handleSelect, selectData, setSelectData } = props;
+  const { handleSelect, selectData, setSelectData, isTimer, setIsTimer } =
+    props;
+  const { mutate: handleAddEdit } = useAddEditLog();
+  const reset = () => {
+    setSelectData({
+      project: "",
+      task: "",
+      description: "",
+      start: "",
+      end: "",
+      duration: "",
+      date: null,
+    });
+  };
+  useEffect(() => {
+    if (isTimer) {
+      setSelectData((prev: any) => ({
+        ...prev,
+        start: "",
+        end: "",
+        duration: "",
+        date: "",
+      }));
+    } else {
+      setSelectData((prev: any) => ({
+        ...prev,
+        start: selectData?.date
+          ? `${selectData?.date}T${
+              new Date().toLocaleString("sv").split(" ")[1]
+            }`
+          : new Date().toLocaleString("sv").replace("Z", "").replace(" ", "T"),
+
+        end: selectData?.date
+          ? `${selectData?.date}T${
+              new Date(new Date().setMinutes(new Date().getMinutes() + 1))
+                .toLocaleString("sv")
+                .split(" ")[1]
+            }`
+          : new Date(new Date().setMinutes(new Date().getMinutes() + 1))
+              .toLocaleString("sv")
+              .replace("Z", "")
+              .replace(" ", "T"),
+      }));
+    }
+  }, [isTimer, selectData?.date]);
+  useEffect(() => {
+    const { start, end } = selectData;
+
+    if (start && end) {
+      const duration = getDuration(start, end);
+      setSelectData((prevData: any) => ({ ...prevData, duration: duration }));
+    }
+  }, [selectData?.start, selectData?.end]);
+
+  const datePickerStyle1 = {
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: "red !important",
+      borderWidth: "1px !important",
+      width: "200px !important",
+    },
+  };
+
   return (
-    <div className="flex flex-1 flex-row mb-[20px] bg-white border-1 border-solid border-gray-300 p-[20px] gap-[40px] items-center rounded-[8px]">
+    <div
+      className="flex flex-1 flex-row mb-[20px] bg-white border-1 border-solid border-gray-300 p-[20px] gap-[40px] items-center rounded-[8px]"
+      style={{ flexWrap: "wrap" }}
+    >
       <div>
         <LabelHeading>Project</LabelHeading>
         <DropDown
@@ -159,7 +234,7 @@ const AddTask = (props: any) => {
       <div>
         <LabelHeading>Description</LabelHeading>
         <textarea
-          className="w-[400px] h-[40px] p-2 border rounded resize-none text-[#3A3B3F] placeholder-[#9EA0A5]"
+          className="w-[300px] h-[40px] p-2 border rounded resize-none text-[#3A3B3F] placeholder-[#9EA0A5]"
           cols={40}
           style={{
             backgroundColor: "#fff",
@@ -175,9 +250,136 @@ const AddTask = (props: any) => {
           value={selectData?.description}
         />
       </div>
-      <div>
-        <LabelHeading>Start Task</LabelHeading>
-        <Timer setSelectData={setSelectData} selectData={selectData} />
+
+      {isTimer ? (
+        <div>
+          <LabelHeading>Start Task</LabelHeading>
+          <Timer setSelectData={setSelectData} selectData={selectData} />
+        </div>
+      ) : (
+        <>
+          <div>
+            <LabelHeading>Date</LabelHeading>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                value={selectData?.date}
+                onChange={(event: any) => {
+                  handleSelect(
+                    new Date(event?.$d).toLocaleString("sv").split(" ")[0],
+                    "date"
+                  );
+                }}
+                className="add-task-dashboard"
+                slotProps={{
+                  textField: { size: "small" },
+                }}
+              />
+            </LocalizationProvider>
+          </div>
+
+          <div>
+            <LabelHeading>Start time</LabelHeading>
+            <Input
+              id="start_time"
+              placeholder="Start time"
+              value={selectData?.start}
+              onChange={(event: { target: { value: any } }) =>
+                handleSelect(event.target.value, "start")
+              }
+              style={{ width: 200 }}
+            />
+          </div>
+          <div>
+            <LabelHeading>End time</LabelHeading>
+            <Input
+              id="end_time"
+              placeholder="End time"
+              value={selectData?.end}
+              onChange={(event: { target: { value: any } }) => {
+                handleSelect(event.target.value, "end");
+              }}
+              style={{ width: 200 }}
+            />
+          </div>
+          <div>
+            <LabelHeading>Duration</LabelHeading>
+            <Input
+              id="duration"
+              placeholder="Duration"
+              value={selectData?.duration}
+              onChange={(event: { target: { value: any } }) =>
+                handleSelect(event.target.value, "duration")
+              }
+              style={{ width: 200 }}
+              disabled
+            />
+          </div>
+          <div>
+            <LabelHeading> </LabelHeading>
+            <Button
+              appearance="outlined"
+              status={"active"}
+              label="Add"
+              onPress={() => {
+                handleAddEdit({
+                  payload: selectData,
+                });
+                reset();
+              }}
+              style={{
+                padding: 4,
+                marginTop: 20,
+                backgroundColor: "#018273",
+              }}
+              className="w-32 font-semibold"
+              textStyle={{ color: "#F5F6FA", fontWeight: 600, fontSize: 20 }}
+            />
+          </div>
+        </>
+      )}
+
+      <div className="items-center flex flex-col gap-[10px] fixed right-10">
+        <div
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            cursor: "pointer",
+            backgroundColor: isTimer ? "#018273" : "#F5F6FA",
+          }}
+          className="flex justify-center items-center"
+          onClick={() => {
+            setIsTimer(true);
+          }}
+        >
+          <Icon
+            name="timer"
+            width={16}
+            height={16}
+            color={isTimer ? "#fff" : "#3A3B3F"}
+          />
+        </div>
+
+        <div
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            cursor: "pointer",
+            backgroundColor: isTimer ? "#F5F6FA" : "#018273",
+          }}
+          className="flex justify-center items-center"
+          onClick={() => {
+            setIsTimer(false);
+          }}
+        >
+          <Icon
+            name="list"
+            width={16}
+            height={16}
+            color={isTimer ? "#3A3B3F" : "#fff"}
+          />
+        </div>
       </div>
     </div>
   );
@@ -189,6 +391,7 @@ const Timer = (props: any) => {
   const [duration, setDuration] = useState(0);
   const [timerWorker, setTimerWorker] = useState<Worker | null>(null);
   const { mutate: handleAddEdit } = useAddEditLog();
+  const [timer, setTimer] = useState(true);
 
   function initWatch() {
     if (timerWorker === null) {
@@ -220,6 +423,7 @@ const Timer = (props: any) => {
         .replace("Z", "")
         .replace(" ", "T");
       timerWorker.postMessage("stop");
+      setTimer(false);
       setActive(false);
       setSelectData((prev: any) => ({
         ...prev,
@@ -250,14 +454,14 @@ const Timer = (props: any) => {
 
   // api call to add time log when timer is stopped
   useEffect(() => {
-    if (selectData?.end !== "") {
+    if (selectData?.end !== "" && !timer) {
       const duration = getDuration(selectData?.start, selectData?.end);
       handleAddEdit({
         payload: { ...selectData, duration: duration },
       });
       initReset();
     }
-  }, [selectData]);
+  }, [selectData, timer]);
 
   return (
     <div className="flex flex-row items-center gap-[10px]">

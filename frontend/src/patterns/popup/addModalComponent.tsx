@@ -179,6 +179,7 @@ const AddModalComponent = (props: AddModalComponentProps) => {
                         handleSelect(event.target.value, "duration")
                       }
                       style={{ width: "100%" }}
+                      disabled
                     />
                   </div>
                 </div>
