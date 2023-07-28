@@ -19,7 +19,9 @@
   },
   "homepage": "https://github.com/varungm24/time-tracker#readme",
   "dependencies": {
+    "chart.js": "^4.3.2",
     "commitizen": "^4.3.0",
+    "react-chartjs-2": "^5.2.0",
     "register-service-worker": "^1.7.2"
   },
   "devDependencies": {
