@@ -106,7 +106,9 @@ const LeftSideBar = () => {
               <a
                 href="#"
                 className=" flex items-center p-2 text-gray-900 rounded-lg dark:text-onPrimary"
-                onClick={() => {}}
+                onClick={() => {
+                  navigate("/timereport");
+                }}
                 onMouseEnter={() => handlePressIn(3)}
                 onMouseLeave={() => handlePressOut(3)}
                 style={{
