@@ -18,6 +18,8 @@ import Left from "./left";
 import Right from "./right";
 import List from "./list";
 import Timer from "./timer";
+import HidePassword from "./hidepassword";
+import ShowPassword from "./showpassword";
 
 const iconName = {
   defaultAvatar: {
@@ -76,6 +78,12 @@ const iconName = {
   },
   timer: {
     component: Timer,
+  },
+  hidepassword: {
+    component: HidePassword,
+  },
+  showpassword: {
+    component: ShowPassword,
   },
 };
 
