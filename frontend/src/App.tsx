@@ -3,6 +3,7 @@ import TimeTracker from "./assets/TimeTracker.png";
 function App() {
   const navigate = useNavigate();
   return (
+   
     <div
       style={{
         display: "flex",
@@ -12,7 +13,7 @@ function App() {
         height: "100vh",
       }}
     >
-      <img
+       <img
         src={TimeTracker}
         className="object-contain w-[260px] h-[180px]"
         alt="TimeTracker"
@@ -25,16 +26,18 @@ function App() {
         className="pb-4 text-2xl"
       >
         Welcome to Time Tracker Application
-      </p>
-      <button
+      </p> 
+      
+     <button
         className="bg-[#018273] hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
         onClick={() => {
           navigate("/dashboard");
         }}
       >
         Dashboard
-      </button>
-    </div>
+      </button> 
+      </div>
+      
   );
 }
 
