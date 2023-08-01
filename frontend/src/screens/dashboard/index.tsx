@@ -61,7 +61,7 @@ export const Dashboard = () => {
         height: "100vh",
       }}
     >
-      <div className="flex w-full">
+      <div className="flex w-full" style={{ height: "100%" }}>
         <LeftSideBar />
         <RightSideBar
           allTimeLogs={allTimeLogs}
@@ -111,15 +111,16 @@ const RightSideBar = (props: any) => {
         setIsTimer={setIsTimer}
         isTimer={isTimer}
       />
-      <ProductivityCards />
-      <TableComponent
-        allTimeLogs={allTimeLogs}
-        date={date}
-        setDate={setDate}
-        dateTime={dateTime}
-        setDateTime={setDateTime}
-      />
-
+      <div className="flex-grow overflow-scroll">
+        <ProductivityCards />
+        <TableComponent
+          allTimeLogs={allTimeLogs}
+          date={date}
+          setDate={setDate}
+          dateTime={dateTime}
+          setDateTime={setDateTime}
+        />
+      </div>
       <DeleteModalComponent
         promptText="Delete the log"
         subPromptText="Are you sure you want to delete this time log?"
@@ -208,7 +209,7 @@ const AddTask = (props: any) => {
 
   return (
     <div
-      className="flex flex-1 flex-row mb-[20px] bg-white border-1 border-solid border-gray-300 p-[20px] gap-[40px] items-center rounded-[8px]"
+      className="flex flex-1 flex-row mb-[20px]  bg-white border-1 border-solid border-gray-300 p-[20px] gap-[40px] items-center rounded-[8px]"
       style={{ flexWrap: "wrap" }}
     >
       <div>
@@ -636,11 +637,11 @@ const TableComponent = (props: any) => {
       />
       <div
         id="myGrid"
-        className="ag-theme-alpine w-full h-full overflow-x-scroll"
+        className="ag-theme-alpine ag-theme-alpine-dark w-full flex-grow overflow-auto"
       >
         <AgGridReact
           ref={tableRef}
-          className="ag-theme-alpine"
+          className="ag-theme-alpine ag-theme-alpine-dark"
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           suppressRowClickSelection={true}

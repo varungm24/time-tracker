@@ -210,3 +210,30 @@
   border-color: rgb(158, 160, 165) !important;
   border-width: 1px !important;
 }
+
+.avatar-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.avatar-button:focus {
+  outline: none;
+}
+.menu {
+  display: none; /* Initially hide the menu */
+  position: absolute;
+  top: 79px; /* Adjust the top position as needed */
+  right: 30px; /* Align the menu to the right of the avatar */
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  
+}
+.menu.show {
+  display: block; /* Show the menu when 'show' class is present */
+}
+
+
